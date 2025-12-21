@@ -6,6 +6,7 @@
 //
 
 #import "SceneDelegate.h"
+#import "SecondViewController.h"
 
 @interface SceneDelegate ()
 
@@ -18,6 +19,23 @@
     // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
     // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
     // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+    // 1. 确保 scene 是 UIWindowScene 类型
+    UIWindowScene *windowScene = (UIWindowScene *)scene;
+    if (![windowScene isKindOfClass:[UIWindowScene class]]) return;
+
+    // 2. 初始化 window
+    self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
+
+    // 3. 创建 SecondViewController 并包装在导航控制器中
+    SecondViewController *secondVC = [[SecondViewController alloc]init];
+    secondVC.view.backgroundColor = [UIColor whiteColor];
+    
+    // 4. 将视图控制器包装在 UINavigationController 中以显示导航栏
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:secondVC];
+
+    // 5. 设置根视图控制器并显示
+    self.window.rootViewController = navController;
+    [self.window makeKeyAndVisible];
 }
 
 
