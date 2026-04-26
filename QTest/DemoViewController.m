@@ -6,11 +6,15 @@
 //
 
 #import "DemoViewController.h"
+#import "QTest-Swift.h"
 
 @interface DemoViewController () <UITextFieldDelegate>
 
 @property (nonatomic, strong) UILabel *usernameErrorLabel;
 @property (nonatomic, strong) UILabel *passwordErrorLabel;
+@property (nonatomic, strong) UILabel *addressBookLabel;
+@property (nonatomic, strong) UITextField *usernameField;
+@property (nonatomic, strong) UITextField *passwordField;
 
 @end
 
@@ -28,28 +32,30 @@
     UILabel *usernameLabel = [self createLabelWithText:@"用户名"];
     UILabel *passwordLabel = [self createLabelWithText:@"密码"];
     
-    UITextField *usernameField = [self createUserNameField];
-    UITextField *passwordField = [self createPasswordField];
+    self.usernameField = [self createUserNameField];
+    self.passwordField = [self createPasswordField];
+    self.addressBookLabel = [self createAddressBookLabel];
     
     // 创建错误提示标签
     self.usernameErrorLabel = [self createErrorLabel];
     self.passwordErrorLabel = [self createErrorLabel];
     
     // 设置代理
-    usernameField.delegate = self;
-    passwordField.delegate = self;
+    self.usernameField.delegate = self;
+    self.passwordField.delegate = self;
     
     [self.view addSubview:usernameLabel];
     [self.view addSubview:passwordLabel];
-    [self.view addSubview:usernameField];
-    [self.view addSubview:passwordField];
+    [self.view addSubview:self.usernameField];
+    [self.view addSubview:self.passwordField];
     [self.view addSubview:self.usernameErrorLabel];
     [self.view addSubview:self.passwordErrorLabel];
+    [self.view addSubview:self.addressBookLabel];
     
     [self setupConstraintsWithUsernameLabel:usernameLabel 
-                            usernameField:usernameField 
+                            usernameField:self.usernameField
                             passwordLabel:passwordLabel 
-                            passwordField:passwordField];
+                            passwordField:self.passwordField];
 }
 
 -(UILabel *)createLabelWithText:(NSString *)text {
@@ -69,6 +75,19 @@
     errorLabel.hidden = YES;
     errorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     return errorLabel;
+}
+
+-(UILabel *)createAddressBookLabel {
+    UILabel *label = [[UILabel alloc] init];
+    label.text = @"访问通讯录";
+    label.font = [UIFont systemFontOfSize:16.0 weight:UIFontWeightMedium];
+    label.textColor = UIColor.systemBlueColor;
+    label.userInteractionEnabled = YES;
+    label.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(openAddressBook)];
+    [label addGestureRecognizer:tapGesture];
+    return label;
 }
 
 -(UITextField *)createUserNameField {
@@ -140,7 +159,11 @@
         // 密码错误提示
         [self.passwordErrorLabel.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor constant:20],
         [self.passwordErrorLabel.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor constant:-20],
-        [self.passwordErrorLabel.topAnchor constraintEqualToAnchor:passwordField.bottomAnchor constant:4]
+        [self.passwordErrorLabel.topAnchor constraintEqualToAnchor:passwordField.bottomAnchor constant:4],
+        
+        // 访问通讯录
+        [self.addressBookLabel.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor constant:20],
+        [self.addressBookLabel.topAnchor constraintEqualToAnchor:self.passwordErrorLabel.bottomAnchor constant:36]
     ]];
 }
 
@@ -153,6 +176,12 @@
 
 - (void)dismissKeyboard {
     [self.view endEditing:YES];
+}
+
+- (void)openAddressBook {
+    [self dismissKeyboard];
+    NSString *phoneNumber = self.usernameField.text ?: @"";
+    [Contact presentContactEditorFrom:self phoneNumber:phoneNumber];
 }
 
 #pragma mark - 校验方法
@@ -291,12 +320,10 @@
 
 #pragma mark - 获取用户名密码方法
 -(NSString *)getUsername {
-    UITextField *userNameField = [self.view viewWithTag:1001];
-    return userNameField.text ?: @"";
+    return self.usernameField.text ?: @"";
 }
 
 -(NSString *)getPassword {
-    UITextField *passwordField = [self.view viewWithTag:1002];
-    return passwordField.text ?: @"";
+    return self.passwordField.text ?: @"";
 }
 @end
